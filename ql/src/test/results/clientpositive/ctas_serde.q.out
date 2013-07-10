@@ -1,0 +1,157 @@
+PREHOOK: query: create table ctas_serde as
+select if(key='',null,key) as key, if(value='',null,value) as value from src1
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src1
+POSTHOOK: query: create table ctas_serde as
+select if(key='',null,key) as key, if(value='',null,value) as value from src1
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src1
+POSTHOOK: Output: default@ctas_serde
+PREHOOK: query: select * from ctas_serde
+PREHOOK: type: QUERY
+PREHOOK: Input: default@ctas_serde
+PREHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-24_515_8236149949275345021/10000
+POSTHOOK: query: select * from ctas_serde
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@ctas_serde
+POSTHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-24_515_8236149949275345021/10000
+238	val_238
+NULL	NULL
+311	val_311
+NULL	val_27
+NULL	val_165
+NULL	val_409
+255	val_255
+278	val_278
+98	val_98
+NULL	val_484
+NULL	val_265
+NULL	val_193
+401	val_401
+150	val_150
+273	val_273
+224	NULL
+369	NULL
+66	val_66
+128	NULL
+213	val_213
+146	val_146
+406	val_406
+NULL	NULL
+NULL	NULL
+NULL	NULL
+PREHOOK: query: create table ctas_null_format          
+row format serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+as
+select * from ctas_serde
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@ctas_serde
+POSTHOOK: query: create table ctas_null_format          
+row format serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+as
+select * from ctas_serde
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@ctas_serde
+POSTHOOK: Output: default@ctas_null_format
+PREHOOK: query: select * from ctas_null_format
+PREHOOK: type: QUERY
+PREHOOK: Input: default@ctas_null_format
+PREHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-27_086_8445372346613850777/10000
+POSTHOOK: query: select * from ctas_null_format
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@ctas_null_format
+POSTHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-27_086_8445372346613850777/10000
+238	val_238
+NULL	NULL
+311	val_311
+NULL	val_27
+NULL	val_165
+NULL	val_409
+255	val_255
+278	val_278
+98	val_98
+NULL	val_484
+NULL	val_265
+NULL	val_193
+401	val_401
+150	val_150
+273	val_273
+224	NULL
+369	NULL
+66	val_66
+128	NULL
+213	val_213
+146	val_146
+406	val_406
+NULL	NULL
+NULL	NULL
+NULL	NULL
+PREHOOK: query: create table ctas_null_format1          
+row format serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+with serdeproperties('serialization.null.format'='NULL_bug')
+as
+select * from ctas_serde
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@ctas_serde
+POSTHOOK: query: create table ctas_null_format1          
+row format serde 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+with serdeproperties('serialization.null.format'='NULL_bug')
+as
+select * from ctas_serde
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@ctas_serde
+POSTHOOK: Output: default@ctas_null_format1
+PREHOOK: query: ALTER TABLE ctas_null_format1 SET SERDEPROPERTIES ('serialization.null.format'='\\N')
+PREHOOK: type: ALTERTABLE_SERDEPROPERTIES
+POSTHOOK: query: ALTER TABLE ctas_null_format1 SET SERDEPROPERTIES ('serialization.null.format'='\\N')
+POSTHOOK: type: ALTERTABLE_SERDEPROPERTIES
+POSTHOOK: Input: default@ctas_null_format1
+POSTHOOK: Output: default@ctas_null_format1
+PREHOOK: query: select * from ctas_null_format1
+PREHOOK: type: QUERY
+PREHOOK: Input: default@ctas_null_format1
+PREHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-29_649_7084534057983710791/10000
+POSTHOOK: query: select * from ctas_null_format1
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@ctas_null_format1
+POSTHOOK: Output: file:/tmp/hadoop/hive_2011-05-15_23-53-29_649_7084534057983710791/10000
+238	val_238
+NULL_bug	NULL_bug
+311	val_311
+NULL_bug	val_27
+NULL_bug	val_165
+NULL_bug	val_409
+255	val_255
+278	val_278
+98	val_98
+NULL_bug	val_484
+NULL_bug	val_265
+NULL_bug	val_193
+401	val_401
+150	val_150
+273	val_273
+224	NULL_bug
+369	NULL_bug
+66	val_66
+128	NULL_bug
+213	val_213
+146	val_146
+406	val_406
+NULL_bug	NULL_bug
+NULL_bug	NULL_bug
+NULL_bug	NULL_bug
+PREHOOK: query: drop table ctas_serde
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table ctas_serde
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@ctas_serde
+PREHOOK: query: drop table ctas_null_format
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table ctas_null_format
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@ctas_null_format
+PREHOOK: query: drop table ctas_null_format1
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table ctas_null_format1
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@ctas_null_format1

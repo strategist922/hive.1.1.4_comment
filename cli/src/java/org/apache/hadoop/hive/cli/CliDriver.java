@@ -1,0 +1,441 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hadoop.hive.cli;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import jline.ArgumentCompletor;
+import jline.ConsoleReader;
+import jline.History;
+import jline.SimpleCompletor;
+import jline.Terminal;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.conf.HiveConf.ConfVars;
+import org.apache.hadoop.hive.metastore.api.FieldSchema;
+import org.apache.hadoop.hive.metastore.api.Schema;
+import org.apache.hadoop.hive.ql.CommandNeedRetryException;
+import org.apache.hadoop.hive.ql.Driver;
+import org.apache.hadoop.hive.ql.exec.Utilities;
+import org.apache.hadoop.hive.ql.exec.Utilities.StreamPrinter;
+import org.apache.hadoop.hive.ql.processors.CommandProcessor;
+import org.apache.hadoop.hive.ql.processors.CommandProcessorFactory;
+import org.apache.hadoop.hive.ql.session.SessionState;
+import org.apache.hadoop.hive.ql.session.SessionState.LogHelper;
+import org.apache.hadoop.hive.shims.ShimLoader;
+import org.apache.hadoop.io.IOUtils;
+
+/**
+ * CliDriver.
+ *
+ */
+public class CliDriver {
+
+  public static final String prompt = "hive";
+  public static final String prompt2 = "    "; // when ';' is not yet seen
+
+  public static final String HIVERCFILE = ".hiverc";
+
+  private final LogHelper console;
+  private final Configuration conf;
+
+  public CliDriver() {
+    SessionState ss = SessionState.get();
+    conf = (ss != null) ? ss.getConf() : new Configuration();
+    Log LOG = LogFactory.getLog("CliDriver");
+    console = new LogHelper(LOG);
+  }
+
+  public int processCmd(String cmd) {
+    SessionState ss = SessionState.get();
+
+    String cmd_trimmed = cmd.trim();
+    String[] tokens = cmd_trimmed.split("\\s+");
+    String cmd_1 = cmd_trimmed.substring(tokens[0].length()).trim();
+    int ret = 0;
+
+    if (cmd_trimmed.toLowerCase().equals("quit") || cmd_trimmed.toLowerCase().equals("exit")) {
+
+      try {
+        ss.end();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      // if we have come this far - either the previous commands
+      // are all successful or this is command line. in either case
+      // this counts as a successful run
+      System.exit(0);
+
+    }else if (tokens[0].equalsIgnoreCase("source")) {
+      File sourceFile = new File(cmd_1);
+      if (! sourceFile.isFile()){
+        console.printError("File: "+ cmd_1 + " is not a file.");
+        ret = 1;
+      } else {
+        try {
+          this.processFile(cmd_1);
+        } catch (IOException e) {
+          console.printError("Failed processing file "+ cmd_1 +" "+ e.getLocalizedMessage(),
+            org.apache.hadoop.util.StringUtils.stringifyException(e));
+          ret = 1;
+        }
+      }
+    }else if (cmd_trimmed.startsWith("!")) {
+
+      String shell_cmd = cmd_trimmed.substring(1);
+
+      // shell_cmd = "/bin/bash -c \'" + shell_cmd + "\'";
+      try {
+        Process executor = Runtime.getRuntime().exec(shell_cmd);
+        StreamPrinter outPrinter = new StreamPrinter(executor.getInputStream(), null, ss.out);
+        StreamPrinter errPrinter = new StreamPrinter(executor.getErrorStream(), null, ss.err);
+
+        outPrinter.start();
+        errPrinter.start();
+
+        ret = executor.waitFor();
+        if (ret != 0) {
+          console.printError("Command failed with exit code = " + ret);
+        }
+      } catch (Exception e) {
+        console.printError("Exception raised from Shell command " + e.getLocalizedMessage(),
+            org.apache.hadoop.util.StringUtils.stringifyException(e));
+        ret = 1;
+      }
+
+    } else if (tokens[0].toLowerCase().equals("list")) {
+
+      SessionState.ResourceType t;
+      if (tokens.length < 2 || (t = SessionState.find_resource_type(tokens[1])) == null) {
+        console.printError("Usage: list ["
+            + StringUtils.join(SessionState.ResourceType.values(), "|") + "] [<value> [<value>]*]");
+        ret = 1;
+      } else {
+        List<String> filter = null;
+        if (tokens.length >= 3) {
+          System.arraycopy(tokens, 2, tokens, 0, tokens.length - 2);
+          filter = Arrays.asList(tokens);
+        }
+        Set<String> s = ss.list_resource(t, filter);
+        if (s != null && !s.isEmpty()) {
+          ss.out.println(StringUtils.join(s, "\n"));
+        }
+      }
+
+    } else {
+      CommandProcessor proc = CommandProcessorFactory.get(tokens[0]);
+      int tryCount = 0;
+      boolean needRetry;
+
+      do {
+        try {
+          needRetry = false;
+          if (proc != null) {
+            if (proc instanceof Driver) {
+              Driver qp = (Driver) proc;
+              PrintStream out = ss.out;
+              long start = System.currentTimeMillis();
+
+              qp.setTryCount(tryCount);
+              ret = qp.run(cmd).getResponseCode();
+              if (ret != 0) {
+                qp.close();
+                return ret;
+              }
+
+              ArrayList<String> res = new ArrayList<String>();
+
+              if (HiveConf.getBoolVar(conf, HiveConf.ConfVars.HIVE_CLI_PRINT_HEADER)) {
+                // Print the column names
+                boolean first_col = true;
+                Schema sc = qp.getSchema();
+                for (FieldSchema fs : sc.getFieldSchemas()) {
+                  if (!first_col) {
+                    out.print('\t');
+                  }
+                  out.print(fs.getName());
+                  first_col = false;
+                }
+                out.println();
+              }
+
+              try {
+                while (qp.getResults(res)) {
+                  for (String r : res) {
+                    out.println(r);
+                  }
+                  res.clear();
+                  if (out.checkError()) {
+                    break;
+                  }
+                }
+              } catch (IOException e) {
+                console.printError("Failed with exception " + e.getClass().getName() + ":"
+                    + e.getMessage(), "\n" + org.apache.hadoop.util.StringUtils.stringifyException(e));
+                ret = 1;
+              }
+
+              int cret = qp.close();
+              if (ret == 0) {
+                ret = cret;
+              }
+
+              long end = System.currentTimeMillis();
+              if (end > start) {
+                double timeTaken = (end - start) / 1000.0;
+                console.printInfo("Time taken: " + timeTaken + " seconds", null);
+              }
+
+            } else {
+              ret = proc.run(cmd_1).getResponseCode();
+            }
+          }
+        } catch (CommandNeedRetryException e) {
+          console.printInfo("Retry query with a different approach...");
+          tryCount++;
+          needRetry = true;
+        }
+      } while (needRetry);
+    }
+
+    return ret;
+  }
+
+  public int processLine(String line) {
+    int lastRet = 0, ret = 0;
+
+    String command = "";
+    for (String oneCmd : line.split(";")) {
+
+      if (StringUtils.endsWith(oneCmd, "\\")) {
+        command += StringUtils.chop(oneCmd) + ";";
+        continue;
+      } else {
+        command += oneCmd;
+      }
+      if (StringUtils.isBlank(command)) {
+        continue;
+      }
+
+      ret = processCmd(command);
+      command = "";
+      lastRet = ret;
+      boolean ignoreErrors = HiveConf.getBoolVar(conf, HiveConf.ConfVars.CLIIGNOREERRORS);
+      if (ret != 0 && !ignoreErrors) {
+        return ret;
+      }
+    }
+    return lastRet;
+  }
+
+  public int processReader(BufferedReader r) throws IOException {
+    String line;
+    StringBuilder qsb = new StringBuilder();
+
+    while ((line = r.readLine()) != null) {
+      qsb.append(line + "\n");
+    }
+
+    return (processLine(qsb.toString()));
+  }
+
+  public int processFile(String fileName) throws IOException {
+    FileReader fileReader = null;
+    BufferedReader bufferReader = null;
+    int rc = 0;
+    try {
+      fileReader = new FileReader(fileName);
+      bufferReader = new BufferedReader(fileReader);
+      rc = processReader(bufferReader);
+      bufferReader.close();
+      bufferReader = null;
+    } finally {
+      IOUtils.closeStream(bufferReader);
+    }
+    return rc;
+  }
+
+  public void processInitFiles(CliSessionState ss) throws IOException {
+    boolean saveSilent = ss.getIsSilent();
+    ss.setIsSilent(true);
+    for (String initFile : ss.initFiles) {
+      int rc = processFile(initFile);
+      if (rc != 0) {
+        System.exit(rc);
+      }
+    }
+    if (ss.initFiles.size() == 0) {
+      if (System.getenv("HIVE_HOME") != null) {
+        String hivercDefault = System.getenv("HIVE_HOME") + File.separator + "bin" + File.separator + HIVERCFILE;
+        if (new File(hivercDefault).exists()) {
+          int rc = processFile(hivercDefault);
+          if (rc != 0) {
+            System.exit(rc);
+          }
+        }
+      }
+      if (System.getProperty("user.home") != null) {
+        String hivercUser = System.getProperty("user.home") + File.separator + HIVERCFILE;
+        if (new File(hivercUser).exists()) {
+          int rc = processFile(hivercUser);
+          if (rc != 0) {
+            System.exit(rc);
+          }
+        }
+      }
+    }
+    ss.setIsSilent(saveSilent);
+  }
+
+  public static void main(String[] args) throws Exception {
+
+    OptionsProcessor oproc = new OptionsProcessor();
+    if (!oproc.process_stage1(args)) {
+      System.exit(1);
+    }
+
+    // NOTE: It is critical to do this here so that log4j is reinitialized
+    // before any of the other core hive classes are loaded
+    SessionState.initHiveLog4j();
+
+    CliSessionState ss = new CliSessionState(new HiveConf(SessionState.class));
+    String encoding = HiveConf.getVar(ss.getConf(), HiveConf.ConfVars.HIVECLIENCODING);
+    ss.in = System.in;
+    try {
+      ss.out = new PrintStream(System.out, true, encoding);
+      ss.err = new PrintStream(System.err, true, encoding);
+    } catch (UnsupportedEncodingException e) {
+      System.exit(3);
+    }
+
+    if (!oproc.process_stage2(ss)) {
+      System.exit(2);
+    }
+
+    // set all properties specified via command line
+    HiveConf conf = ss.getConf();
+    for (Map.Entry<Object, Object> item : ss.cmdProperties.entrySet()) {
+      conf.set((String) item.getKey(), (String) item.getValue());
+    }
+
+    if (!ShimLoader.getHadoopShims().usesJobShell()) {
+      // hadoop-20 and above - we need to augment classpath using hiveconf
+      // components
+      // see also: code in ExecDriver.java
+      ClassLoader loader = conf.getClassLoader();
+      String auxJars = HiveConf.getVar(conf, HiveConf.ConfVars.HIVEAUXJARS);
+      if (StringUtils.isNotBlank(auxJars)) {
+        loader = Utilities.addToClassPath(loader, StringUtils.split(auxJars, ","));
+      }
+      conf.setClassLoader(loader);
+      Thread.currentThread().setContextClassLoader(loader);
+    }
+
+    SessionState.start(ss);
+
+    CliDriver cli = new CliDriver();
+
+    // Execute -i init files (always in silent mode)
+    cli.processInitFiles(ss);
+
+    // We do authentication only if authorization is enabled.
+    if (conf.getBoolVar(ConfVars.HIVE_AUTHORIZATION_ENABLED)) {
+      if (!ss.getAuthenticator().login(ss)) {
+        System.exit(4);
+      }
+    } else {
+      // If authorization disabled, grant super privilege to user.
+      ss.setUserName("root");
+    }
+
+    if (ss.execString != null) {
+      System.exit(cli.processLine(ss.execString));
+    }
+
+    try {
+      if (ss.fileName != null) {
+        System.exit(cli.processFile(ss.fileName));
+      }
+    } catch (FileNotFoundException e) {
+      System.err.println("Could not open input file for reading. (" + e.getMessage() + ")");
+      System.exit(3);
+    }
+
+    Writer outWriter = new PrintWriter(new OutputStreamWriter(System.out, encoding));
+    Terminal term = new UnixTerminal(encoding);
+    term.initializeTerminal();
+    ConsoleReader reader = new ConsoleReader(new FileInputStream(FileDescriptor.in),
+        outWriter, null, term);
+    reader.setBellEnabled(false);
+    // reader.setDebug(new PrintWriter(new FileWriter("writer.debug", true)));
+
+    List<SimpleCompletor> completors = new LinkedList<SimpleCompletor>();
+    completors.add(new SimpleCompletor(new String[] {"set", "from", "create", "load", "describe",
+        "quit", "exit"}));
+    reader.addCompletor(new ArgumentCompletor(completors));
+
+    String line;
+    final String HISTORYFILE = ".hivehistory";
+    String historyFile = System.getProperty("user.home") + File.separator + HISTORYFILE;
+    reader.setHistory(new History(new File(historyFile)));
+    int ret = 0;
+
+    String prefix = "";
+    String curPrompt = prompt;
+    while ((line = reader.readLine(curPrompt + "> ")) != null) {
+      if (!prefix.equals("")) {
+        prefix += '\n';
+      }
+      if (line.trim().endsWith(";") && !line.trim().endsWith("\\;")) {
+        line = prefix + line;
+        ret = cli.processLine(line);
+        prefix = "";
+        curPrompt = prompt;
+      } else {
+        prefix = prefix + line;
+        curPrompt = prompt2;
+        continue;
+      }
+    }
+
+    System.exit(ret);
+  }
+
+}

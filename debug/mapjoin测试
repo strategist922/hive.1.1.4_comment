@@ -1,0 +1,18 @@
+ hive -hiveconf hive.root.logger=INFO,console
+ 
+ set hive.exec.mode.local.auto=true;
+ set hive.auto.convert.join=true;
+ 
+ 
+
+set hive.exec.mode.local.auto.tasks.max=4;
+                  
+
+
+ select a.ac1,b.bc1 from (select * from debug_join_1 limit 10) a left outer join 
+                  debug_join_2 b on a.ac3=b.bc2  ;
+                  
+
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat   ;
+ set mapred.job.tracker=local; 
+set fs.default.name=file:/// ;

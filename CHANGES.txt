@@ -1,0 +1,179 @@
+发行公告 - hive-taobao - 版本 1.1.4
+
+** Bug
+    * [HIVE-205] - localmode执行失败后没有恢复原先的jobtracker和hdfs的信息
+    * [HIVE-217] - 子查询拥有相同别名导致谓词下推出错
+    * [HIVE-244] - open/commit transaction calls在连接重试的情况下对匹配
+    * [HIVE-248] - 动态分区完成后不能使用mapreduce去合并小文件，只能使用map-only的job来合并
+    * [HIVE-249] - CombineHiveInputFormat对一个给定的路径不应该使用前缀匹配去寻找partitionDesc
+** 改进	
+    * [HIVE-113] - 在执行计划中删除分区剪枝的条件表达式
+    * [HIVE-121] - 语法错误时，提示更友好的错误信息
+    * [HIVE-170] - Add cleanup method to HiveHistory class
+    * [HIVE-171] - Show the time the local task takes
+    * [HIVE-177] - Speed up reflection method calls in GenericUDFBridge and GenericUDAFBridge
+    * [HIVE-186] - GroupByOperator性能提升
+    * [HIVE-187] - Generate single MR job for multi groupby query
+    * [HIVE-197] - 加快limit查询的速度
+    * [HIVE-201] - 记录各个阶段的执行时间
+    * [HIVE-203] - 添加partition，partition所在的目录不存在，创建失败时错误信息中加入创建路径信息
+    * [HIVE-218] - 语法错误抛出EmptyStackException(null)异常，错误信息不好看
+    * [HIVE-223] - 优化GroupBy里面的key比较
+    * [HIVE-225] - groupby 比较两个key是否相同时，反序比较
+    * [HIVE-246] - CombineHiveInputFormat 在文件很多时，性能低下
+    * [HIVE-247] - 自动加载mysql-connector-java-5.1.6.jar到eclipse的classpath中
+    * [HIVE-252] - 加速addInputPaths
+    * [HIVE-254] - 当limit优化开启时，运行local mode获得数据
+    * [HIVE-257] - 创建临时目录失败时，显示会创建的临时目录路径
+** 任务
+    * [HIVE-188] - 增加Metastore listener
+    * [HIVE-255] - local mode运行失败，恢复分布式运行
+    * [HIVE-261] - hive.mapred.local.mem和hive.mapjoin.localtask.timeout改为生产上使用的默认值
+** 新功能
+•	[HIVE-129] - hive语法支持having子句
+•	[HIVE-141] - 在job中设置一项（hive.exec.intermediate.job），是否是中间操作，产生的输出是中间结果
+•	[HIVE-196] - 中间结果备份数为2
+** 子任务
+**  1.	Hiveserver
+    * [HIVE-77] - 提供当前执行语句的进度的获取接口
+    * [HIVE-140] - hive server不会清理临时文件目录
+    * [HIVE-145] - TestHiveServer未握手验证，连接不上HiveServer
+    * [HIVE-149] - 得到表的分区字段
+    * [HIVE-161] - client发送hivesql给hiveserver，若执行失败，client得到的错误信息太少
+    * [HIVE-164] - hiveserver使用threadpool,默认线程池初始5个线程，改大为100个
+    * [HIVE-166] - jdbc client 从hiveserver获取信息时，如果信息还未生成，会有npe产生
+    * [HIVE-185] - sql执行失败，导致cli和hiveserver退出
+    * [HIVE-195] - Thrift客户端killJob失效
+**  2.	权限
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups:修复TestJdbcDriver抛出NPE的问题
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups:修复Drop database的Database not found错误
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复drop database时出现的database not found异常
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups:修复权限控制使得UT失败的问题
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复TestHiveHistory的错误
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复QTestUtils的错误
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复单元测试TestGenericAuthorizer
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 添加对视图create view desc的权限支持
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups:添加create table desc到AuthorizeEntry
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修改grant/revoke语义到Authorizer
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复view设置的owner错误的BUG
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: 修复对列的权限授权时GenericAuthorizer错误判断的BUG
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: Drop table时可能会抛出Table not found异常
+    * [HIVE-134] - (修改认证/授权逻辑为可配置)follow ups: GenericAuthenticator认证成功后，服务器端需要设置SessionState的user name
+    * [HIVE-134] - 修改认证/授权逻辑为可配置
+    * [HIVE-137] - 视图中的查询不会做权限授权
+    * [HIVE-151] - 取消show tables对当前用户的权限检查
+    * [HIVE-156] - Drop Table 时出现 BatchUpdateException: Cannot delete or update a parent row
+    * [HIVE-183] - HiveDatabaseMetaData的getColumnPrivileges和getTablePrivileges直接抛异常，改为返回空结果
+    * [HIVE-194] - modify PrivilegeLevel,add GRANT_PRIV to DATABASE_LEVEL,TABLE_LEVEL,COLUMN_LEVEL
+**  3.	QA回归环境
+    * [HIVE-210] - 在insert overwrite或者load时修改默认的写目录
+**  4.	缓存中间表
+    * [HIVE-93] - (缓存中间表) follow ups: 解决路径替换时出现的ConcurrentModificationException的BUG
+    * [HIVE-93] - (缓存中间表) follow ups: TaskModel添加父亲节点出现NPE
+    * [HIVE-93] - (缓存中间表) follow ups: TaskModel改为获取表名而不是表别名
+    * [HIVE-93] - (缓存中间表) follow ups: 修复不能感知原始输入文件改动的BUG
+    * [HIVE-93] - (缓存中间表) follow ups：修复add file添加目录产生异常的BUG
+
+
+发行公告 - hive-taobao - 版本 1.1.2.1
+
+** Bug
+    * [HIVE-215] - hive异构分区的分割符支持有问题
+    * [HIVE-216] - 新mapjoin的bug，多个join在一道mapjoin作业里面运行时抛出异常
+    * [HIVE-226] - STREAMTABLE 与 left outer join 可能会出现问题
+    * [HIVE-229] - Driver.close和FetchTask有文件句柄泄漏
+    * [HIVE-230] - hive中潜在的资源泄漏
+    * [HIVE-231] - 在出错情况下，ScriptOperator和Utilities可能没有关闭打开的streams
+    * [HIVE-232] - 在出错情况下，有些打开的stream可能没关闭
+    * [HIVE-235] - 解决TestEmbeddedHiveMetaStore和TestRemoteHiveMetaStore因为设置jdo默认为线程安全导致的失败 
+    * [HIVE-236] - 允许udf编译阶段访问常量值
+    * [HIVE-238] - 同时使用动态分区和mapjoin时有问题
+    * [HIVE-239] - 谓词下推与分区裁减错误的过滤了输入数据
+    * [HIVE-242] - left semi join 重复数据
+
+** 任务
+    * [HIVE-234] - jdo 默认线程安全
+    * [HIVE-237] - automapjoin判断一个表为小表时默认25M降低到15M
+
+** 新功能
+    * [HIVE-210] - 在insert overwrite或者load时修改默认的写目录
+
+
+发行公告 - hive-taobao - 版本 1.1.2
+
+** Bug
+    * [HIVE-10] - Map Join时，小表如果是空表会导致任务失败
+    * [HIVE-54] - DROP TABLE有可能因为OOM失败
+    * [HIVE-95] - 分区为空时，count 输出的行数为reduce数
+    * [HIVE-108] - CTAS不能正确处理表对应的serde参数
+    * [HIVE-111] - 任务提交阶段JVM堆内存溢出会导致进程挂死
+    * [HIVE-114] - 任务提交时序不正常，导致前序任务的数据可能不会加载到任务输入，造成数据丢失
+    * [HIVE-117] - 改变一个不存在的partition的fileformat，这条语句会改变整个table的fileformat。
+    * [HIVE-118] - table是rcfile格式，增加一个partition（使用sequencefile），alter 这个partition为sequencefile，从这个partition select时报错。
+    * [HIVE-124] - 本地优化任务会因为向HDFS写数据没有权限的错误而失败
+    * [HIVE-125] - 自动 Map Join 选择错误的表
+    * [HIVE-128] - 自适应本地任务判断有误，导致大任务被安排到本地运行
+    * [HIVE-138] - 对象做深拷贝时使用 String 作媒介可能会引发编码问题
+    * [HIVE-148] - Tansform 脚本无法在 Local Mode 正常工作
+    * [HIVE-150] - 本地模式序列化 MapRedWork 执行抛出 Wrong FS 异常
+    * [HIVE-152] - 复杂SELECT* JOIN输入的列的顺序不正确
+    * [HIVE-154] - 本地任务执行，终端提示不友好
+    * [HIVE-160] - Map Join 抛出 NPE
+    * [HIVE-165] - 连续两个自动 map join ，后一个join反序列化前一个join的输出时数组越界
+    * [HIVE-173] - CTAS在自动本地执行会抛出文件不存在异常
+    * [HIVE-174] - Add file 一个远程文件可能会出现 Failed to read external resource
+
+** 改进
+    * [HIVE-5] - 使Join处理null值的语义与数据库语义保持一致
+    * [HIVE-45] - Map Join自动优化
+    * [HIVE-90] - 将 Map Join 的小表加载到分布式缓存
+    * [HIVE-96] - Map Join 删除 JDBM 组件
+    * [HIVE-112] - describe 一个不存在的表，提示信息不友好
+    * [HIVE-116] - 启发式地小任务移动到client机器运行
+
+** 任务
+    * [HIVE-72] - 增加 Patch Test 功能
+    * [HIVE-143] - 将 hive.outerjoin.supports.filters 改回至默认值
+
+** 新功能
+    * [HIVE-91] - 添加配置选项，Hive执行不提交hadoop job
+    * [HIVE-92] - 添加Analyze hook
+    * [HIVE-93] - Hive支持缓存中间表
+    * [HIVE-107] - alter table支持分区级别
+    * [HIVE-110] - Hive Cli 支持启动脚本选项
+    * [HIVE-119] - 显示select只显示数据，增加字段名信息
+    * [HIVE-120] - desc 一个table的详细信息时，显示不友好
+    * [HIVE-127] - udaf_percentile_approx  的支持
+    * [HIVE-176] - 提供对local job收集jobconf的功能
+    * [HIVE-180] - 添加一个hook，在本地任务执行前设置该任务的一些参数
+
+
+发行公告 - hive-taobao - 版本 1.1.1
+
+** 子任务
+    * [HIVE-67] - 元数据支持中文
+    * [HIVE-83] - 权限认证支持Hive server
+
+** Bug
+    * [HIVE-31] - cast不能处理string类型中的空格
+    * [HIVE-50] - multi-insert产生重复数据
+    * [HIVE-51] - MapReduce输出目录_temporary未成功清除
+    * [HIVE-56] - 新版本的 Hive 会造成客户端内存溢出
+    * [HIVE-63] - 打开dynamic partitioning时自动开启Progress Counters，可能导致Counters过多
+    * [HIVE-65] - cast UDF应该不依赖于SerDe实现
+    * [HIVE-71] - TestHiveServer 失败
+    * [HIVE-73] - 多次UDFConv，前一次运算的结果会对后一次产生影响
+    * [HIVE-82] - HIVE-62改变依赖的hadoop版本到云梯版本造成一些UT failed
+    * [HIVE-84] - skew join optimization会抛NullPointerException
+    * [HIVE-85] - 提交job前设置reduce数可能造成动态分区抛出NPE
+    * [HIVE-87] - 本机UT出现异常Failed to move to trash
+
+** 改进
+    * [HIVE-48] - Multi-distinct支持skew groupby
+    * [HIVE-60] - 获得每个 Operator 的执行时间
+    * [HIVE-62] - 改变依赖的hadoop版本到云梯版本
+    * [HIVE-74] - 修改授权逻辑，将授权操作从执行期提前到编译期
+
+** 新功能
+    * [HIVE-68] - 添加 PreJob Hooks
+    * [HIVE-70] - 添加 PostJob Hooks

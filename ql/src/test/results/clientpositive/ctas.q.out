@@ -1,0 +1,763 @@
+PREHOOK: query: drop table nzhang_ctas1
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas1
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: drop table nzhang_ctas2
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas2
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: drop table nzhang_ctas3
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas3
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: drop table nzhang_ctas4
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas4
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: drop table nzhang_ctas5
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas5
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: create table nzhang_Tmp(a int, b string)
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: create table nzhang_Tmp(a int, b string)
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Output: default@nzhang_Tmp
+PREHOOK: query: select * from nzhang_Tmp
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_tmp
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-05_257_1245028551151904011/-mr-10000
+POSTHOOK: query: select * from nzhang_Tmp
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_tmp
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-05_257_1245028551151904011/-mr-10000
+PREHOOK: query: explain create table nzhang_CTAS1 as select key k, value from src sort by k, value limit 10
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain create table nzhang_CTAS1 as select key k, value from src sort by k, value limit 10
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_CTAS1 TOK_LIKETABLE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL key) k) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL k)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL value))) (TOK_LIMIT 10))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-2 depends on stages: Stage-1
+  Stage-0 depends on stages: Stage-2
+  Stage-3 depends on stages: Stage-0
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        src 
+          TableScan
+            alias: src
+            Select Operator
+              expressions:
+                    expr: key
+                    type: string
+                    expr: value
+                    type: string
+              outputColumnNames: _col0, _col1
+              Reduce Output Operator
+                key expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+                sort order: ++
+                tag: -1
+                value expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 0
+              table:
+                  input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+
+  Stage: Stage-2
+    Map Reduce
+      Alias -> Map Operator Tree:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-05_375_4667809474723528672/-mr-10002 
+            Reduce Output Operator
+              key expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+              sort order: ++
+              tag: -1
+              value expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 1
+              table:
+                  input format: org.apache.hadoop.mapred.TextInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+
+  Stage: Stage-0
+    Move Operator
+      files:
+          hdfs directory: true
+          destination: pfile:///home/shaojie/source/hive/build/ql/test/data/warehouse/nzhang_ctas1
+
+  Stage: Stage-3
+      Create Table Operator:
+        Create Table
+          columns: k string, value string
+          if not exists: false
+          input format: org.apache.hadoop.mapred.TextInputFormat
+          # buckets: -1
+          output format: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          name: nzhang_CTAS1
+          isExternal: false
+
+
+PREHOOK: query: create table nzhang_CTAS1 as select key k, value from src sort by k, value limit 10
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src
+POSTHOOK: query: create table nzhang_CTAS1 as select key k, value from src sort by k, value limit 10
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src
+POSTHOOK: Output: default@nzhang_CTAS1
+PREHOOK: query: select * from nzhang_CTAS1
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_ctas1
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-10_318_2261950629496452993/-mr-10000
+POSTHOOK: query: select * from nzhang_CTAS1
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_ctas1
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-10_318_2261950629496452993/-mr-10000
+0	val_0
+0	val_0
+0	val_0
+10	val_10
+100	val_100
+100	val_100
+103	val_103
+103	val_103
+104	val_104
+104	val_104
+PREHOOK: query: explain create table nzhang_ctas2 as select * from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain create table nzhang_ctas2 as select * from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_ctas2 TOK_LIKETABLE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR TOK_ALLCOLREF)) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL key)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL value))) (TOK_LIMIT 10))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-2 depends on stages: Stage-1
+  Stage-0 depends on stages: Stage-2
+  Stage-3 depends on stages: Stage-0
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        src 
+          TableScan
+            alias: src
+            Select Operator
+              expressions:
+                    expr: key
+                    type: string
+                    expr: value
+                    type: string
+              outputColumnNames: _col0, _col1
+              Reduce Output Operator
+                key expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+                sort order: ++
+                tag: -1
+                value expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 0
+              table:
+                  input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+
+  Stage: Stage-2
+    Map Reduce
+      Alias -> Map Operator Tree:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-10_384_1677730893272546525/-mr-10002 
+            Reduce Output Operator
+              key expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+              sort order: ++
+              tag: -1
+              value expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 1
+              table:
+                  input format: org.apache.hadoop.mapred.TextInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+
+  Stage: Stage-0
+    Move Operator
+      files:
+          hdfs directory: true
+          destination: pfile:///home/shaojie/source/hive/build/ql/test/data/warehouse/nzhang_ctas2
+
+  Stage: Stage-3
+      Create Table Operator:
+        Create Table
+          columns: key string, value string
+          if not exists: false
+          input format: org.apache.hadoop.mapred.TextInputFormat
+          # buckets: -1
+          output format: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          name: nzhang_ctas2
+          isExternal: false
+
+
+PREHOOK: query: create table nzhang_ctas2 as select * from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src
+POSTHOOK: query: create table nzhang_ctas2 as select * from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src
+POSTHOOK: Output: default@nzhang_ctas2
+PREHOOK: query: select * from nzhang_ctas2
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_ctas2
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-15_092_5167145064035663435/-mr-10000
+POSTHOOK: query: select * from nzhang_ctas2
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_ctas2
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-15_092_5167145064035663435/-mr-10000
+0	val_0
+0	val_0
+0	val_0
+10	val_10
+100	val_100
+100	val_100
+103	val_103
+103	val_103
+104	val_104
+104	val_104
+PREHOOK: query: explain create table nzhang_ctas3 row format serde "org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe" stored as RCFile as select key/2 half_key, concat(value, "_con") conb  from src sort by half_key, conb limit 10
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain create table nzhang_ctas3 row format serde "org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe" stored as RCFile as select key/2 half_key, concat(value, "_con") conb  from src sort by half_key, conb limit 10
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_ctas3 TOK_LIKETABLE (TOK_TABLESERIALIZER (TOK_SERDENAME "org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe")) TOK_TBLRCFILE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (/ (TOK_TABLE_OR_COL key) 2) half_key) (TOK_SELEXPR (TOK_FUNCTION concat (TOK_TABLE_OR_COL value) "_con") conb)) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL half_key)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL conb))) (TOK_LIMIT 10))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-2 depends on stages: Stage-1
+  Stage-0 depends on stages: Stage-2
+  Stage-3 depends on stages: Stage-0
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        src 
+          TableScan
+            alias: src
+            Select Operator
+              expressions:
+                    expr: (key / 2)
+                    type: double
+                    expr: concat(value, '_con')
+                    type: string
+              outputColumnNames: _col0, _col1
+              Reduce Output Operator
+                key expressions:
+                      expr: _col0
+                      type: double
+                      expr: _col1
+                      type: string
+                sort order: ++
+                tag: -1
+                value expressions:
+                      expr: _col0
+                      type: double
+                      expr: _col1
+                      type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 0
+              table:
+                  input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+
+  Stage: Stage-2
+    Map Reduce
+      Alias -> Map Operator Tree:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-15_162_6595874156810096211/-mr-10002 
+            Reduce Output Operator
+              key expressions:
+                    expr: _col0
+                    type: double
+                    expr: _col1
+                    type: string
+              sort order: ++
+              tag: -1
+              value expressions:
+                    expr: _col0
+                    type: double
+                    expr: _col1
+                    type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 1
+              table:
+                  input format: org.apache.hadoop.hive.ql.io.RCFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.RCFileOutputFormat
+
+  Stage: Stage-0
+    Move Operator
+      files:
+          hdfs directory: true
+          destination: pfile:///home/shaojie/source/hive/build/ql/test/data/warehouse/nzhang_ctas3
+
+  Stage: Stage-3
+      Create Table Operator:
+        Create Table
+          columns: half_key double, conb string
+          if not exists: false
+          input format: org.apache.hadoop.hive.ql.io.RCFileInputFormat
+          # buckets: -1
+          output format: org.apache.hadoop.hive.ql.io.RCFileOutputFormat
+          serde name: org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe
+          name: nzhang_ctas3
+          isExternal: false
+
+
+PREHOOK: query: create table nzhang_ctas3 row format serde "org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe" stored as RCFile as select key/2 half_key, concat(value, "_con") conb  from src sort by half_key, conb limit 10
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src
+POSTHOOK: query: create table nzhang_ctas3 row format serde "org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe" stored as RCFile as select key/2 half_key, concat(value, "_con") conb  from src sort by half_key, conb limit 10
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src
+POSTHOOK: Output: default@nzhang_ctas3
+PREHOOK: query: select * from nzhang_ctas3
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_ctas3
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-19_802_5932943717572443733/-mr-10000
+POSTHOOK: query: select * from nzhang_ctas3
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_ctas3
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-19_802_5932943717572443733/-mr-10000
+0.0	val_0_con
+0.0	val_0_con
+0.0	val_0_con
+1.0	val_2_con
+2.0	val_4_con
+2.5	val_5_con
+2.5	val_5_con
+2.5	val_5_con
+4.0	val_8_con
+4.5	val_9_con
+PREHOOK: query: explain create table if not exists nzhang_ctas3 as select key, value from src sort by key, value limit 2
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain create table if not exists nzhang_ctas3 as select key, value from src sort by key, value limit 2
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_ctas3 TOK_IFNOTEXISTS TOK_LIKETABLE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL key)) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL key)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL value))) (TOK_LIMIT 2))))
+
+STAGE DEPENDENCIES:
+
+STAGE PLANS:
+STAGE PLANS:
+PREHOOK: query: create table if not exists nzhang_ctas3 as select key, value from src sort by key, value limit 2
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: create table if not exists nzhang_ctas3 as select key, value from src sort by key, value limit 2
+POSTHOOK: type: CREATETABLE
+PREHOOK: query: select * from nzhang_ctas3
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_ctas3
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-19_918_6275772923530197564/-mr-10000
+POSTHOOK: query: select * from nzhang_ctas3
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_ctas3
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-19_918_6275772923530197564/-mr-10000
+0.0	val_0_con
+0.0	val_0_con
+0.0	val_0_con
+1.0	val_2_con
+2.0	val_4_con
+2.5	val_5_con
+2.5	val_5_con
+2.5	val_5_con
+4.0	val_8_con
+4.5	val_9_con
+PREHOOK: query: explain create table nzhang_ctas4 row format delimited fields terminated by ',' stored as textfile as select key, value from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain create table nzhang_ctas4 row format delimited fields terminated by ',' stored as textfile as select key, value from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_ctas4 TOK_LIKETABLE (TOK_TABLEROWFORMAT (TOK_SERDEPROPS (TOK_TABLEROWFORMATFIELD ','))) TOK_TBLTEXTFILE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL key)) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL key)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL value))) (TOK_LIMIT 10))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-2 depends on stages: Stage-1
+  Stage-0 depends on stages: Stage-2
+  Stage-3 depends on stages: Stage-0
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        src 
+          TableScan
+            alias: src
+            Select Operator
+              expressions:
+                    expr: key
+                    type: string
+                    expr: value
+                    type: string
+              outputColumnNames: _col0, _col1
+              Reduce Output Operator
+                key expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+                sort order: ++
+                tag: -1
+                value expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 0
+              table:
+                  input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+
+  Stage: Stage-2
+    Map Reduce
+      Alias -> Map Operator Tree:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-19_975_1303534920555432451/-mr-10002 
+            Reduce Output Operator
+              key expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+              sort order: ++
+              tag: -1
+              value expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 1
+              table:
+                  input format: org.apache.hadoop.mapred.TextInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+
+  Stage: Stage-0
+    Move Operator
+      files:
+          hdfs directory: true
+          destination: pfile:///home/shaojie/source/hive/build/ql/test/data/warehouse/nzhang_ctas4
+
+  Stage: Stage-3
+      Create Table Operator:
+        Create Table
+          columns: key string, value string
+          field delimiter: ,
+          if not exists: false
+          input format: org.apache.hadoop.mapred.TextInputFormat
+          # buckets: -1
+          output format: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          name: nzhang_ctas4
+          isExternal: false
+
+
+PREHOOK: query: create table nzhang_ctas4 row format delimited fields terminated by ',' stored as textfile as select key, value from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src
+POSTHOOK: query: create table nzhang_ctas4 row format delimited fields terminated by ',' stored as textfile as select key, value from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src
+POSTHOOK: Output: default@nzhang_ctas4
+PREHOOK: query: select * from nzhang_ctas4
+PREHOOK: type: QUERY
+PREHOOK: Input: default@nzhang_ctas4
+PREHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-24_544_7633258826461394207/-mr-10000
+POSTHOOK: query: select * from nzhang_ctas4
+POSTHOOK: type: QUERY
+POSTHOOK: Input: default@nzhang_ctas4
+POSTHOOK: Output: file:/tmp/shaojie/hive_2011-05-31_10-16-24_544_7633258826461394207/-mr-10000
+0	val_0
+0	val_0
+0	val_0
+10	val_10
+100	val_100
+100	val_100
+103	val_103
+103	val_103
+104	val_104
+104	val_104
+PREHOOK: query: explain extended create table nzhang_ctas5 row format delimited fields terminated by ',' lines terminated by '\012' stored as textfile as select key, value from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: explain extended create table nzhang_ctas5 row format delimited fields terminated by ',' lines terminated by '\012' stored as textfile as select key, value from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+ABSTRACT SYNTAX TREE:
+  (TOK_CREATETABLE nzhang_ctas5 TOK_LIKETABLE (TOK_TABLEROWFORMAT (TOK_SERDEPROPS (TOK_TABLEROWFORMATFIELD ',') (TOK_TABLEROWFORMATLINES '\012'))) TOK_TBLTEXTFILE (TOK_QUERY (TOK_FROM (TOK_TABREF src)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL key)) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_SORTBY (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL key)) (TOK_TABSORTCOLNAMEASC (TOK_TABLE_OR_COL value))) (TOK_LIMIT 10))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-2 depends on stages: Stage-1
+  Stage-0 depends on stages: Stage-2
+  Stage-3 depends on stages: Stage-0
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        src 
+          TableScan
+            alias: src
+            Select Operator
+              expressions:
+                    expr: key
+                    type: string
+                    expr: value
+                    type: string
+              outputColumnNames: _col0, _col1
+              Reduce Output Operator
+                key expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+                sort order: ++
+                tag: -1
+                value expressions:
+                      expr: _col0
+                      type: string
+                      expr: _col1
+                      type: string
+      Needs Tagging: false
+      Path -> Alias:
+        pfile:/home/shaojie/source/hive/build/ql/test/data/warehouse/src [src]
+      Path -> Partition:
+        pfile:/home/shaojie/source/hive/build/ql/test/data/warehouse/src 
+          Partition
+            base file name: src
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/shaojie/source/hive/build/ql/test/data/warehouse/src
+              name src
+              serialization.ddl struct src { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1306862163
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/shaojie/source/hive/build/ql/test/data/warehouse/src
+                name src
+                serialization.ddl struct src { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1306862163
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: src
+            name: src
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 0
+              directory: file:/tmp/shaojie/hive_2011-05-31_10-16-24_596_2326526501894458937/-mr-10002
+              NumFilesPerFileSink: 1
+              table:
+                  input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+                  properties:
+                    columns _col0,_col1
+                    columns.types string,string
+                    escape.delim \
+              TotalFiles: 1
+              MultiFileSpray: false
+
+  Stage: Stage-2
+    Map Reduce
+      Alias -> Map Operator Tree:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-24_596_2326526501894458937/-mr-10002 
+            Reduce Output Operator
+              key expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+              sort order: ++
+              tag: -1
+              value expressions:
+                    expr: _col0
+                    type: string
+                    expr: _col1
+                    type: string
+      Needs Tagging: false
+      Path -> Alias:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-24_596_2326526501894458937/-mr-10002 [file:/tmp/shaojie/hive_2011-05-31_10-16-24_596_2326526501894458937/-mr-10002]
+      Path -> Partition:
+        file:/tmp/shaojie/hive_2011-05-31_10-16-24_596_2326526501894458937/-mr-10002 
+          Partition
+            base file name: -mr-10002
+            input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+            properties:
+              columns _col0,_col1
+              columns.types string,string
+              escape.delim \
+          
+              input format: org.apache.hadoop.mapred.SequenceFileInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+              properties:
+                columns _col0,_col1
+                columns.types string,string
+                escape.delim \
+      Reduce Operator Tree:
+        Extract
+          Limit
+            File Output Operator
+              compressed: false
+              GlobalTableId: 1
+              directory: pfile:/home/shaojie/source/hive/build/ql/scratchdir/hive_2011-05-31_10-16-24_596_2326526501894458937/-ext-10001
+              NumFilesPerFileSink: 1
+              table:
+                  input format: org.apache.hadoop.mapred.TextInputFormat
+                  output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                  properties:
+                    columns _col0,_col1
+                    columns.types string:string
+                    field.delim ,
+                    line.delim 
+
+                    serialization.format ,
+              TotalFiles: 1
+              MultiFileSpray: false
+
+  Stage: Stage-0
+    Move Operator
+      files:
+          hdfs directory: true
+          source: pfile:/home/shaojie/source/hive/build/ql/scratchdir/hive_2011-05-31_10-16-24_596_2326526501894458937/-ext-10001
+          destination: pfile:///home/shaojie/source/hive/build/ql/test/data/warehouse/nzhang_ctas5
+
+  Stage: Stage-3
+      Create Table Operator:
+        Create Table
+          columns: key string, value string
+          field delimiter: ,
+          if not exists: false
+          input format: org.apache.hadoop.mapred.TextInputFormat
+          line delimiter: 
+
+          # buckets: -1
+          output format: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          name: nzhang_ctas5
+          isExternal: false
+
+
+PREHOOK: query: create table nzhang_ctas5 row format delimited fields terminated by ',' lines terminated by '\012' stored as textfile as select key, value from src sort by key, value limit 10
+PREHOOK: type: CREATETABLE
+PREHOOK: Input: default@src
+POSTHOOK: query: create table nzhang_ctas5 row format delimited fields terminated by ',' lines terminated by '\012' stored as textfile as select key, value from src sort by key, value limit 10
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Input: default@src
+POSTHOOK: Output: default@nzhang_ctas5
+PREHOOK: query: drop table nzhang_ctas1
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas1
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_ctas1
+PREHOOK: query: drop table nzhang_ctas2
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas2
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_ctas2
+PREHOOK: query: drop table nzhang_ctas3
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas3
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_ctas3
+PREHOOK: query: drop table nzhang_ctas4
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas4
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_ctas4
+PREHOOK: query: drop table nzhang_ctas5
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_ctas5
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_ctas5
+PREHOOK: query: drop table nzhang_Tmp
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table nzhang_Tmp
+POSTHOOK: type: DROPTABLE
+POSTHOOK: Output: default@nzhang_tmp

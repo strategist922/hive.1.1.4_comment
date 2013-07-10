@@ -1,0 +1,111 @@
+#if ($jobconf.getBoolean("mapred.client.hooks.automized.enabled",false)==true)
+	#*
+		AutoReduce
+	*#
+	#if ($jobconf.getBoolean("mapred.client.hooks.autored.enabled",false)==true)
+		$out.println("AutoReduce is enabled.")
+		#if($jobconf.getBoolean("mapred.client.hooks.autored.collectinfo",false)==true)
+			$out.println("Autoreduce:Only For Collect Info")
+		#else
+			#if($jobconf.getBoolean("mapred.client.hooks.autored.exclusive",false)==true)
+				$out.println("AutoReduce:It is a Exclusive Job.")
+			#else
+				#set($reduceBytes=$counterInfo.get("map_output_bytes"))
+				$out.println("The Average MapOutputBytes is ${reduceBytes} Bytes.")
+				#set($reduceOutputBytes=$counterInfo.get("hdfs_bytes_written"))
+				#set($reduceNum=$counterInfo.get("launched_reduce_tasks"))
+				#set($blockSize=$jobconf.getLong("dfs.block.size",268435456))
+				#set($blockS=${blockSize}/1024/1024)
+				$out.println("The Average ReduceOutputBytes is ${reduceOutputBytes} Bytes.")
+				$out.println("The ReduceNum is ${reduceNum}")
+				#if(${reduceNum}>0)
+					#set($PerReduceMb=$reduceOutputBytes/$reduceNum/1024/1024)
+					$out.println("The mb of per Reduce is ${PerReduceMb}mb.")
+					$out.println("The Block Size is ${blockS}mb.")
+				#end
+				#if(${reduceBytes}>0)
+					#set($mBytes=(${reduceBytes}+512*1024)/(1024*1024))
+					#set($reduceNum=$ReduceNumCalc.getReduceNumber("${mBytes}"))
+					#if($reduceNum%2==0)
+						$reduceNum+=1
+					#end
+					#if($jobconf.getBoolean("mapred.client.hooks.autored.rollback",false)==true&&${PerReduceMb}<${blockS})
+						#set($factorA=${blockS}/${PerReduceMb})
+						#if(${factorA}>4)
+							${factor}=4
+						#end
+						${reduceNum}*=${factor}							
+					#end
+					$jobconf.set("mapred.reduce.tasks", "${reduceNum}");
+					$debug.put("reduceNum",$reduceNum)
+				#end
+			#end
+		#end
+	#else
+		$out.println("AutoReduce is disabled")
+	#end
+
+	#*
+		AutoShuffle
+	*#
+	#if ($jobconf.getBoolean("mapred.client.hooks.autoshuf.enabled",false)==true)
+		$out.println("AutoShuf is enabled.")
+		#if($jobconf.getBoolean("mapred.client.hooks.autored.exclusive",false)==true)
+			$out.println("AutoShuffle:It is a Exclusive Job.")
+		#else
+			#set($mapOutputBytes=$counterInfo.get("map_output_bytes"))
+			$out.println("The Average of MapOutputBytes is ${mapOutputBytes} Bytes.")
+		    #set($mapOutputRecords=$counterInfo.get("map_output_records"))
+		    $out.println("The Average of MapOutputRecords is ${mapOutputRecords} Bytes.")
+		    #set($mapNum=$counterInfo.get("launched_map_tasks"))
+		    $out.println("The Average of MapNum is ${mapNum}.")
+		    #set($sJvmSize=$jobconf.get("mapred.child.java.opt","-Xmx512m"))
+		    $out.println("The Size of JVM is ${sJvmSize}.")
+		    #set($sortMbNow=$jobconf.getInt("io.sort.mb",100))
+		    #if(${mapOutputBytes}>0&&${mapOutputRecords}>0&&${mapNum}>0)
+		    	#set($recordLen=${mapOutputBytes}/${mapOutputRecords})
+		    	#set($recordPercent=16.0/(16+${recordLen})+0.01)
+		    	#if(${recordPercent}>0.05)
+		    		$jobconf.set("io.sort.record.percent",$String.format("%.2f",${recordPercent}))
+		    		$debug.put("io.sort.record.percent",$String.format("%.2f",${recordPercent}))
+		    	#end
+				#set($iJvmSize=$ReduceNumCalc.jvmFormat("${sJvmSize}"))
+				#set($sortMb=${mapOutputBytes}/${mapNum}/(1024*1024*0.8*0.95)+10)
+				#if(${sortMb}>${sortMbNow})
+					#if(${sortMb}>${iJvmSize})
+						$jobconf.setInt("io.sort.mb",$String.format("%d",${iJvmSize}))
+						$debug.put("io.sort.mb",$iJvmSize)
+					#else
+						$jobconf.setInt("io.sort.mb",$String.format("%d",${sortMb}))
+						$debug.put("io.sort.mb",$sortMb)
+					#end
+				#end
+				#if(${mapNum}>200)
+					$jobconf.setInt("io.sort.factor",200)
+					$debug.put("io.sort.factor",200)
+				#elseif(${mapNum}>10)
+					$jobconf.set("io.sort.factor","${mapNum}")
+					$debug.put("io.sort.factor",$mapNum)
+				#end
+		    #end
+		#end
+	#else
+		$out.println("AutoShuf is Disabled.")
+	#end
+#*
+	Turn Off Speculative Execution
+*#
+	#set($threshold=$jobconf.getInt("skynet.priority.reduce.speculative.threshold",-1))
+	#if ($threshold!=-1)
+		#if($jobconf.getInt("mapred.job.level",0)<=$threshold)
+			$jobconf.setBoolean("mapred.reduce.tasks.speculative.execution",false)
+			$debug.put("mapred.reduce.tasks.speculative.execution",false)
+			$jobconf.setBoolean("hive.mapred.reduce.tasks.speculative.execution",false)
+			$debug.put("hive.mapred.reduce.tasks.speculative.execution",false)
+			$jobconf.setBoolean("mapred.map.tasks.speculative.execution",false)
+			$debug.put("mapred.map.tasks.speculative.execution",false)
+		#end
+	#end
+#else
+	$out.println("AutoSwitch is Disabled.")
+#end

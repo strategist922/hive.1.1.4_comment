@@ -1,0 +1,888 @@
+PREHOOK: query: EXPLAIN EXTENDED
+SELECT user_id 
+FROM (
+  SELECT 
+  CAST(key AS INT) AS user_id
+  ,CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+  THEN 1
+  ELSE 0 END AS tag_student
+  FROM srcpart
+) sub
+WHERE sub.tag_student > 0
+PREHOOK: type: QUERY
+POSTHOOK: query: EXPLAIN EXTENDED
+SELECT user_id 
+FROM (
+  SELECT 
+  CAST(key AS INT) AS user_id
+  ,CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+  THEN 1
+  ELSE 0 END AS tag_student
+  FROM srcpart
+) sub
+WHERE sub.tag_student > 0
+POSTHOOK: type: QUERY
+ABSTRACT SYNTAX TREE:
+  (TOK_QUERY (TOK_FROM (TOK_SUBQUERY (TOK_QUERY (TOK_FROM (TOK_TABREF srcpart)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_FUNCTION TOK_INT (TOK_TABLE_OR_COL key)) user_id) (TOK_SELEXPR (TOK_FUNCTION WHEN (OR (LIKE (TOK_TABLE_OR_COL value) 'aaa%') (LIKE (TOK_TABLE_OR_COL value) 'vvv%')) 1 0) tag_student)))) sub)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL user_id))) (TOK_WHERE (> (. (TOK_TABLE_OR_COL sub) tag_student) 0))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 is a root stage
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        sub:srcpart 
+          TableScan
+            alias: srcpart
+            Filter Operator
+              isSamplingPred: false
+              predicate:
+                  expr: (CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END > 0)
+                  type: boolean
+              Select Operator
+                expressions:
+                      expr: UDFToInteger(key)
+                      type: int
+                      expr: CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END
+                      type: int
+                outputColumnNames: _col0, _col1
+                Filter Operator
+                  isSamplingPred: false
+                  predicate:
+                      expr: (_col1 > 0)
+                      type: boolean
+                  Select Operator
+                    expressions:
+                          expr: _col0
+                          type: int
+                    outputColumnNames: _col0
+                    File Output Operator
+                      compressed: false
+                      GlobalTableId: 0
+                      directory: file:/tmp/tianzhao/hive_2011-10-31_05-49-18_089_2148224690720262824/-ext-10001
+                      NumFilesPerFileSink: 1
+                      table:
+                          input format: org.apache.hadoop.mapred.TextInputFormat
+                          output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                          properties:
+                            columns _col0
+                            columns.types int
+                            serialization.format 1
+                      TotalFiles: 1
+                      MultiFileSpray: false
+      Needs Tagging: false
+      Path -> Alias:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 [sub:srcpart]
+      Path -> Partition:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+
+
+PREHOOK: query: EXPLAIN EXTENDED
+SELECT user_id 
+FROM (
+  SELECT 
+  CAST(key AS INT) AS user_id
+  ,CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+  THEN 1
+  ELSE 0 END AS tag_student
+  FROM srcpart
+) sub
+WHERE sub.tag_student > 0
+PREHOOK: type: QUERY
+POSTHOOK: query: EXPLAIN EXTENDED
+SELECT user_id 
+FROM (
+  SELECT 
+  CAST(key AS INT) AS user_id
+  ,CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+  THEN 1
+  ELSE 0 END AS tag_student
+  FROM srcpart
+) sub
+WHERE sub.tag_student > 0
+POSTHOOK: type: QUERY
+ABSTRACT SYNTAX TREE:
+  (TOK_QUERY (TOK_FROM (TOK_SUBQUERY (TOK_QUERY (TOK_FROM (TOK_TABREF srcpart)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_FUNCTION TOK_INT (TOK_TABLE_OR_COL key)) user_id) (TOK_SELEXPR (TOK_FUNCTION WHEN (OR (LIKE (TOK_TABLE_OR_COL value) 'aaa%') (LIKE (TOK_TABLE_OR_COL value) 'vvv%')) 1 0) tag_student)))) sub)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_TABLE_OR_COL user_id))) (TOK_WHERE (> (. (TOK_TABLE_OR_COL sub) tag_student) 0))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 is a root stage
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        sub:srcpart 
+          TableScan
+            alias: srcpart
+            Select Operator
+              expressions:
+                    expr: UDFToInteger(key)
+                    type: int
+                    expr: CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END
+                    type: int
+              outputColumnNames: _col0, _col1
+              Filter Operator
+                isSamplingPred: false
+                predicate:
+                    expr: (_col1 > 0)
+                    type: boolean
+                Select Operator
+                  expressions:
+                        expr: _col0
+                        type: int
+                  outputColumnNames: _col0
+                  File Output Operator
+                    compressed: false
+                    GlobalTableId: 0
+                    directory: file:/tmp/tianzhao/hive_2011-10-31_05-49-18_855_3285958447429249552/-ext-10001
+                    NumFilesPerFileSink: 1
+                    table:
+                        input format: org.apache.hadoop.mapred.TextInputFormat
+                        output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                        properties:
+                          columns _col0
+                          columns.types int
+                          serialization.format 1
+                    TotalFiles: 1
+                    MultiFileSpray: false
+      Needs Tagging: false
+      Path -> Alias:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 [sub:srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 [sub:srcpart]
+      Path -> Partition:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+
+
+PREHOOK: query: EXPLAIN EXTENDED
+SELECT 
+  CAST(key AS INT) AS user_id, value
+  FROM srcpart
+  WHERE ds='2008-04-08' and 
+  ( CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+   THEN 1
+   ELSE 0  end ) > 0
+PREHOOK: type: QUERY
+POSTHOOK: query: EXPLAIN EXTENDED
+SELECT 
+  CAST(key AS INT) AS user_id, value
+  FROM srcpart
+  WHERE ds='2008-04-08' and 
+  ( CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+   THEN 1
+   ELSE 0  end ) > 0
+POSTHOOK: type: QUERY
+ABSTRACT SYNTAX TREE:
+  (TOK_QUERY (TOK_FROM (TOK_TABREF srcpart)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_FUNCTION TOK_INT (TOK_TABLE_OR_COL key)) user_id) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_WHERE (and (= (TOK_TABLE_OR_COL ds) '2008-04-08') (> (TOK_FUNCTION WHEN (OR (LIKE (TOK_TABLE_OR_COL value) 'aaa%') (LIKE (TOK_TABLE_OR_COL value) 'vvv%')) 1 0) 0)))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 is a root stage
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        srcpart 
+          TableScan
+            alias: srcpart
+            Filter Operator
+              isSamplingPred: false
+              predicate:
+                  expr: (CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END > 0)
+                  type: boolean
+              Filter Operator
+                isSamplingPred: false
+                predicate:
+                    expr: ((ds = '2008-04-08') and (CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END > 0))
+                    type: boolean
+                Select Operator
+                  expressions:
+                        expr: UDFToInteger(key)
+                        type: int
+                        expr: value
+                        type: string
+                  outputColumnNames: _col0, _col1
+                  File Output Operator
+                    compressed: false
+                    GlobalTableId: 0
+                    directory: file:/tmp/tianzhao/hive_2011-10-31_05-49-18_947_7275850196091973090/-ext-10001
+                    NumFilesPerFileSink: 1
+                    table:
+                        input format: org.apache.hadoop.mapred.TextInputFormat
+                        output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                        properties:
+                          columns _col0,_col1
+                          columns.types int:string
+                          serialization.format 1
+                    TotalFiles: 1
+                    MultiFileSpray: false
+      Needs Tagging: false
+      Path -> Alias:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 [srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 [srcpart]
+      Path -> Partition:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+
+
+PREHOOK: query: EXPLAIN EXTENDED
+SELECT 
+  CAST(key AS INT) AS user_id, value
+  FROM srcpart
+  WHERE ds='2008-04-08' and 
+  ( CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+   THEN 1
+   ELSE 0  end ) > 0
+PREHOOK: type: QUERY
+POSTHOOK: query: EXPLAIN EXTENDED
+SELECT 
+  CAST(key AS INT) AS user_id, value
+  FROM srcpart
+  WHERE ds='2008-04-08' and 
+  ( CASE WHEN (value LIKE 'aaa%' OR value LIKE 'vvv%')
+   THEN 1
+   ELSE 0  end ) > 0
+POSTHOOK: type: QUERY
+ABSTRACT SYNTAX TREE:
+  (TOK_QUERY (TOK_FROM (TOK_TABREF srcpart)) (TOK_INSERT (TOK_DESTINATION (TOK_DIR TOK_TMP_FILE)) (TOK_SELECT (TOK_SELEXPR (TOK_FUNCTION TOK_INT (TOK_TABLE_OR_COL key)) user_id) (TOK_SELEXPR (TOK_TABLE_OR_COL value))) (TOK_WHERE (and (= (TOK_TABLE_OR_COL ds) '2008-04-08') (> (TOK_FUNCTION WHEN (OR (LIKE (TOK_TABLE_OR_COL value) 'aaa%') (LIKE (TOK_TABLE_OR_COL value) 'vvv%')) 1 0) 0)))))
+
+STAGE DEPENDENCIES:
+  Stage-1 is a root stage
+  Stage-0 is a root stage
+
+STAGE PLANS:
+  Stage: Stage-1
+    Map Reduce
+      Alias -> Map Operator Tree:
+        srcpart 
+          TableScan
+            alias: srcpart
+            Filter Operator
+              isSamplingPred: false
+              predicate:
+                  expr: ((ds = '2008-04-08') and (CASE WHEN (((value like 'aaa%') or (value like 'vvv%'))) THEN (1) ELSE (0) END > 0))
+                  type: boolean
+              Select Operator
+                expressions:
+                      expr: UDFToInteger(key)
+                      type: int
+                      expr: value
+                      type: string
+                outputColumnNames: _col0, _col1
+                File Output Operator
+                  compressed: false
+                  GlobalTableId: 0
+                  directory: file:/tmp/tianzhao/hive_2011-10-31_05-49-19_032_4469833926534868282/-ext-10001
+                  NumFilesPerFileSink: 1
+                  table:
+                      input format: org.apache.hadoop.mapred.TextInputFormat
+                      output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                      properties:
+                        columns _col0,_col1
+                        columns.types int:string
+                        serialization.format 1
+                  TotalFiles: 1
+                  MultiFileSpray: false
+      Needs Tagging: false
+      Path -> Alias:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 [srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 [srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 [srcpart]
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 [srcpart]
+      Path -> Partition:
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-08
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-08/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11 
+          Partition
+            base file name: hr=11
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 11
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=11
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+        pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12 
+          Partition
+            base file name: hr=12
+            input format: org.apache.hadoop.mapred.TextInputFormat
+            output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            partition values:
+              ds 2008-04-09
+              hr 12
+            properties:
+              bucket_count -1
+              columns key,value
+              columns.types string:string
+              file.inputformat org.apache.hadoop.mapred.TextInputFormat
+              file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart/ds=2008-04-09/hr=12
+              name srcpart
+              partition_columns ds/hr
+              serialization.ddl struct srcpart { string key, string value}
+              serialization.format 1
+              serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              transient_lastDdlTime 1320065348
+            serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+          
+              input format: org.apache.hadoop.mapred.TextInputFormat
+              output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+              properties:
+                bucket_count -1
+                columns key,value
+                columns.types string:string
+                file.inputformat org.apache.hadoop.mapred.TextInputFormat
+                file.outputformat org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+                location pfile:/home/tianzhao/taobao/t_dp_dw_hive-1.1.2-156/build/ql/test/data/warehouse/srcpart
+                name srcpart
+                partition_columns ds/hr
+                serialization.ddl struct srcpart { string key, string value}
+                serialization.format 1
+                serialization.lib org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+                transient_lastDdlTime 1320065348
+              serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+              name: srcpart
+            name: srcpart
+
+  Stage: Stage-0
+    Fetch Operator
+      limit: -1
+
+

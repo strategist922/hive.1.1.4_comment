@@ -1,0 +1,33 @@
+--调试join操作符的左外关联
+drop table debug_join_1;
+
+create table debug_join_1 ( ac1 string , ac2 string , ac3 string) 
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '10'
+stored as textfile;
+
+load data local inpath '/home/yuanhang.ghj/debug_join_1.data' overwrite into table debug_join_1;
+
+
+drop table debug_join_2;
+
+create table debug_join_2 ( bc1 string , bc2 string  ) 
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '10'
+stored as textfile;
+
+load data local inpath '/home/yuanhang.ghj/debug_join_2.data' overwrite into table debug_join_2;
+
+set mapred.job.tracker=local; 
+set fs.default.name=file:/// ;
+select a.ac1,b.bc2 from debug_join_1 a left outer join debug_join_2 b on a.ac1=b.bc1;
+
+set mapred.job.tracker=local; 
+set fs.default.name=file:/// ;
+select a.ac1,b.bc1 from debug_join_1 a left outer join 
+                  debug_join_2 b on a.ac3=b.bc2 ;
+
+          
+                  

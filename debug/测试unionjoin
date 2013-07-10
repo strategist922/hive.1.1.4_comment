@@ -1,0 +1,21 @@
+
+drop table test_unionjoin_1;
+create table test_unionjoin_1 as select 1 as a , 2 as b from dual;
+
+drop table test_unionjoin_2;
+create table test_unionjoin_2 as select 0 as a , 2 as b from dual;
+
+FROM UNIQUEJOIN PRESERVE test_unionjoin_1 ta (ta.a), test_unionjoin_2 tb(tb.a)  
+SELECT ta.a, ta.b, tb.a, tb.b;     
+
+FROM UNIQUEJOIN PRESERVE test_unionjoin_2 ta (ta.a), test_unionjoin_1 tb(tb.a)  
+SELECT ta.a, ta.b, tb.a, tb.b;          
+
+
+--仅能测试出是类似左外关联
+
+
+
+FROM UNIQUEJOIN PRESERVE debug_join_1 a (a.ac1 ),
+          debug_join_2 b(b.bc1 )
+SELECT a.ac1, b.bc1;  

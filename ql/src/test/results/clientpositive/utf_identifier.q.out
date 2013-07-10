@@ -1,0 +1,65 @@
+PREHOOK: query: drop table 中文
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table 中文
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: drop table 测试
+PREHOOK: type: DROPTABLE
+POSTHOOK: query: drop table 测试
+POSTHOOK: type: DROPTABLE
+PREHOOK: query: create table if not exists 测试 (测试 string comment '测试')
+PREHOOK: type: CREATETABLE
+POSTHOOK: query: create table if not exists 测试 (测试 string comment '测试')
+POSTHOOK: type: CREATETABLE
+POSTHOOK: Output: default@测试
+PREHOOK: query: show tables
+PREHOOK: type: SHOWTABLES
+POSTHOOK: query: show tables
+POSTHOOK: type: SHOWTABLES
+src
+src1
+src_json
+src_sequencefile
+src_thrift
+srcbucket
+srcbucket2
+srcpart
+测试
+PREHOOK: query: desc extended 测试
+PREHOOK: type: DESCTABLE
+POSTHOOK: query: desc extended 测试
+POSTHOOK: type: DESCTABLE
+测试	string	测试
+	 	 
+Detailed Table Information	Table(tableName:测试, dbName:default, owner:shaojie, createTime:1299815334, lastAccessTime:0, retention:0, sd:StorageDescriptor(cols:[FieldSchema(name:测试, type:string, comment:测试)], location:file:/home/shaojie/work/upgrade/hive/trunk/build/ql/test/data/warehouse/测试, inputFormat:org.apache.hadoop.mapred.TextInputFormat, outputFormat:org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat, compressed:false, numBuckets:-1, serdeInfo:SerDeInfo(name:null, serializationLib:org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, parameters:{serialization.format=1}), bucketCols:[], sortCols:[], parameters:{}), partitionKeys:[], parameters:{transient_lastDdlTime=1299815334}, viewOriginalText:null, viewExpandedText:null, tableType:MANAGED_TABLE)	
+PREHOOK: query: alter table 测试 change 测试 中文 string comment '中文'
+PREHOOK: type: ALTERTABLE_RENAMECOL
+POSTHOOK: query: alter table 测试 change 测试 中文 string comment '中文'
+POSTHOOK: type: ALTERTABLE_RENAMECOL
+POSTHOOK: Input: default@测试
+POSTHOOK: Output: default@测试
+PREHOOK: query: alter table 测试 rename to `中文`
+PREHOOK: type: ALTERTABLE_RENAME
+POSTHOOK: query: alter table 测试 rename to `中文`
+POSTHOOK: type: ALTERTABLE_RENAME
+POSTHOOK: Input: default@测试
+POSTHOOK: Output: default@中文
+PREHOOK: query: show tables
+PREHOOK: type: SHOWTABLES
+POSTHOOK: query: show tables
+POSTHOOK: type: SHOWTABLES
+src
+src1
+src_json
+src_sequencefile
+src_thrift
+srcbucket
+srcbucket2
+srcpart
+中文
+PREHOOK: query: desc extended 中文
+PREHOOK: type: DESCTABLE
+POSTHOOK: query: desc extended 中文
+POSTHOOK: type: DESCTABLE
+中文	string	中文
+	 	 
+Detailed Table Information	Table(tableName:中文, dbName:default, owner:shaojie, createTime:1299815334, lastAccessTime:0, retention:0, sd:StorageDescriptor(cols:[FieldSchema(name:中文, type:string, comment:中文)], location:file:/home/shaojie/work/upgrade/hive/trunk/build/ql/test/data/warehouse/中文, inputFormat:org.apache.hadoop.mapred.TextInputFormat, outputFormat:org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat, compressed:false, numBuckets:-1, serdeInfo:SerDeInfo(name:null, serializationLib:org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, parameters:{serialization.format=1}), bucketCols:[], sortCols:[], parameters:{}), partitionKeys:[], parameters:{last_modified_by=shaojie, last_modified_time=1299815334, transient_lastDdlTime=1299815334}, viewOriginalText:null, viewExpandedText:null, tableType:MANAGED_TABLE)	

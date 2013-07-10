@@ -1,0 +1,14 @@
+drop table debug_count_1;
+
+create table debug_count_1 ( ac1 bigint , ac2 string) 
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '10'
+stored as textfile;
+
+
+load data local inpath '/home/yuanhang.ghj/2009/debug_count_1.data' overwrite into table debug_count_1;
+
+select count(*) from debug_count_1;
+
+select count(*) from debug_count_1 where 1=2;
