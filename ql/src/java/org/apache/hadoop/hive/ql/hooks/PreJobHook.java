@@ -18,7 +18,7 @@ public interface PreJobHook {
    * @param job
    *          The current configuration of the job
    * @param taskId
-   *          The current task id (stage id)
+   *          The current task id (stage id) ½×¶ÎID
    */
   public void run(SessionState session, QueryPlan queryPlan, JobConf job, Integer taskId)
       throws Exception;

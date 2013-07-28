@@ -174,7 +174,7 @@ public class ExplainTask extends Task<ExplainWork> implements Serializable {
 
     return false;
   }
-
+//操作符 和 work 深度优先输出，后序
   private void outputPlan(Serializable work, PrintStream out, boolean extended,
       int indent) throws Exception {
     // Check if work has an explain annotation
@@ -271,7 +271,7 @@ public class ExplainTask extends Task<ExplainWork> implements Serializable {
       }
     }
   }
-
+//task 深度优先遍历，先序
   private void outputPlan(Task<? extends Serializable> task, PrintStream out,
       boolean extended, HashSet<Task<? extends Serializable>> displayedSet,
       int indent) throws Exception {
@@ -396,7 +396,7 @@ public class ExplainTask extends Task<ExplainWork> implements Serializable {
     out.println("STAGE PLANS:");
     HashSet<Task<? extends Serializable>> displayedSet =
       new HashSet<Task<? extends Serializable>>();
-    for (Task<? extends Serializable> rootTask : rootTasks) {//最简单mapredtask，fecthtask
+    for (Task<? extends Serializable> rootTask : rootTasks) {//根是最简单mapredtask，fecthtask
       outputPlan(rootTask, out, work.getExtended(), displayedSet, indent + 2);
     }
   }

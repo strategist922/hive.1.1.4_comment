@@ -8,3 +8,4 @@ build-eclipse
 *~
 .svn
 metastore_db
+/bin
